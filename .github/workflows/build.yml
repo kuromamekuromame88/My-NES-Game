@@ -24,9 +24,9 @@ jobs:
       - name: Build NES ROM
         run: |
           mkdir -p build
-          cl65 -t nes -C config/linker.cfg \
+          cl65 -t nes -C config.cfg \
             -o build/game.nes \
-            src/startup.s src/main.c
+            src/startup.asm src/main.c
 
       # （任意）artifact としても残したい場合
       - name: Upload artifact
