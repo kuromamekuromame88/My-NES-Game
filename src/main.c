@@ -1,41 +1,52 @@
-#include <stdint.h>
+typedef unsigned char UChar;
 
-#define PPUCTRL   (*(volatile uint8_t*)0x2000)
-#define PPUMASK   (*(volatile uint8_t*)0x2001)
-#define PPUSTATUS (*(volatile uint8_t*)0x2002)
-#define PPUADDR   (*(volatile uint8_t*)0x2006)
-#define PPUDATA   (*(volatile uint8_t*)0x2007)
+/* PPU registers */
+#define PPU_CTRL1   (*(volatile UChar*)0x2000)
+#define PPU_CTRL2   (*(volatile UChar*)0x2001)
+#define PPU_STATUS  (*(volatile UChar*)0x2002)
+#define PPU_ADDR    (*(volatile UChar*)0x2006)
+#define PPU_DATA    (*(volatile UChar*)0x2007)
 
-void ppu_wait_vblank(void) {
-    while (!(PPUSTATUS & 0x80));
-}
+/*
+ CHR-ROM の想定配置
+ 0: 空白
+ 1: H
+ 2: E
+ 3: L
+ 4: O
+*/
+const UChar hello_tiles[] = {
+    1, 2, 3, 3, 4
+};
 
-void main(void) {
-    ppu_wait_vblank();
+void NesMain(void)
+{
+    UChar i;
 
-    /* パレット設定 */
-    PPUADDR = 0x3F;
-    PPUADDR = 0x00;
-    PPUDATA = 0x0F; // 背景
-    PPUDATA = 0x01; // 文字色
-    PPUDATA = 0x00;
-    PPUDATA = 0x00;
+    /* PPU OFF */
+    PPU_CTRL1 = 0x00;
+    PPU_CTRL2 = 0x00;
 
-    /* ネームテーブル $2000 に "HELLO" を書く */
-    PPUADDR = 0x20;
-    PPUADDR = 0x40; // 画面中央付近
+    /* VBlank 待ち */
+    while (!(PPU_STATUS & 0x80));
 
-    PPUDATA = 1; // H
-    PPUDATA = 2; // E
-    PPUDATA = 3; // L
-    PPUDATA = 3; // L
-    PPUDATA = 4; // O
+    /* BG 書き込み位置 (x=10, y=10 → $214A) */
+    PPU_ADDR = 0x21;
+    PPU_ADDR = 0x4A;
 
-    /* PPU 有効化 */
-    PPUCTRL = 0x00;
-    PPUMASK = 0x08; // 背景ON
+    /* "HELLO" を書く */
+    for (i = 0; i < 5; i++) {
+        PPU_DATA = hello_tiles[i];
+    }
 
+    /* PPU ON
+       - BG表示ON
+       - NMIは一旦OFFでもOK */
+    PPU_CTRL1 = 0x00;
+    PPU_CTRL2 = 0x08;
+
+    /* 何もしない無限ループ */
     while (1) {
-        /* 無限ループ */
+        /* halt */
     }
 }
