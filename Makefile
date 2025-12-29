@@ -2,7 +2,7 @@ CC65    = cl65
 TARGET  = build/game.nes
 
 SRC = \
-	src/crt0.s \
+	src/startup.s \
 	src/main.c \
     src/chr.s
 
