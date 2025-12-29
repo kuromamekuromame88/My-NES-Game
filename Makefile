@@ -15,5 +15,9 @@ $(TARGET): $(SRC)
 	mkdir -p build
 	$(CC65) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC)
 
+$(TARGET): $(PRG) src/chr.bin
+	cat $(PRG) src/chr.bin > $(TARGET)
+
+
 clean:
 	rm -rf build
