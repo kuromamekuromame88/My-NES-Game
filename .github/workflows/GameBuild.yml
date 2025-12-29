@@ -1,1 +1,40 @@
+name: Build NES ROM
 
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. cc65 をインストール
+      - name: Install cc65
+        run: |
+          sudo apt update
+          sudo apt install -y cc65
+
+      # 3. ビルド用ディレクトリ作成（念のため）
+      - name: Prepare build directory
+        run: |
+          mkdir -p build
+
+      # 4. Makefile でビルド
+      - name: Build NES ROM
+        run: |
+          make
+
+      # 5. ROM を成果物として保存
+      - name: Upload NES ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: nes-rom
+          path: build/*.nes
