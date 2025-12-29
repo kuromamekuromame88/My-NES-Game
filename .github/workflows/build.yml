@@ -35,9 +35,17 @@ jobs:
           name: nes-rom
           path: build/game.nes
 
-      # ★ここが Release 自動公開
-      - name: Upload ROM to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+      # --- GitHub Releaseを作成＆アップロード ---
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
         with:
-          files: build/game.nes
+          tag_name: build-${{ github.run_number }}
+          name: ".nes file build ${{ github.run_number }}"
+          body: |
+            Commit: ${{ github.sha }}
+            Build number: ${{ github.run_number }}
+          files: |
+            build/game.nes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
