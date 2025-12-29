@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-      - master
+    tags:
+      - 'v*'   # ← v0.1.0 などのタグで Release
   pull_request:
 
 jobs:
@@ -12,29 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. リポジトリをチェックアウト
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. cc65 をインストール
       - name: Install cc65
         run: |
           sudo apt update
           sudo apt install -y cc65
 
-      # 3. ビルド用ディレクトリ作成（念のため）
-      - name: Prepare build directory
-        run: |
-          mkdir -p build
-
-      # 4. Makefile でビルド
       - name: Build NES ROM
         run: |
-          make
+          mkdir -p build
+          cl65 -t nes -C config/linker.cfg \
+            -o build/game.nes \
+            src/crt0.s src/main.c
 
-      # 5. ROM を成果物として保存
-      - name: Upload NES ROM
+      # （任意）artifact としても残したい場合
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: nes-rom
-          path: build/*.nes
+          path: build/game.nes
+
+      # ★ここが Release 自動公開
+      - name: Upload ROM to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/game.nes
