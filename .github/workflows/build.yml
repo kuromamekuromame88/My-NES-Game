@@ -35,7 +35,7 @@ jobs:
           name: nes-rom
           path: build/game.nes
 
-      # --- GitHub Releaseを作成＆アップロード ---
+      # --- GitHub Releaseを作成してアップロード ---
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
