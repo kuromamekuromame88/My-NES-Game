@@ -1,58 +1,55 @@
 # プロジェクト名
 PROJECT = cc65-helloworld
 
-# ソースディレクトリとビルドディレクトリ
+# ディレクトリ
 SRC_DIR = src
 BUILD_DIR = build
 
-# cc65 ツールチェーンのパス
-CC65_PATH = C:/cc65
+# ツールチェーン（PATH前提）
+CC = cc65
+CA = ca65
+LD = ld65
 
-# コンパイラとアセンブラの設定
-CC = $(CC65_PATH)/bin/cc65
-CA = $(CC65_PATH)/bin/ca65
-LD = $(CC65_PATH)/bin/ld65
-
-# コンパイルフラグ
+# フラグ
 CFLAGS = -t nes -Oirs
-AFLAGS = 
-LDFLAGS = -C $/config.cfg
+AFLAGS =
+LDFLAGS = -C config.cfg
 
-# ソースファイルとオブジェクトファイルのリスト
-C_SOURCES = $(wildcard $(SRC_DIR)/*.c)
+# ソース
+C_SOURCES   = $(wildcard $(SRC_DIR)/*.c)
 ASM_SOURCES = $(wildcard $(SRC_DIR)/*.asm)
-C_OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.s, $(C_SOURCES))
-ASM_OBJECTS = $(patsubst $(SRC_DIR)/%.asm, $(BUILD_DIR)/%.o, $(ASM_SOURCES))
-OBJECTS = $(patsubst $(BUILD_DIR)/%.s, $(BUILD_DIR)/%.o, $(C_OBJECTS)) $(ASM_OBJECTS)
 
-# .s ファイルを残すための設定
+C_OBJECTS   = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.s, $(C_SOURCES))
+ASM_OBJECTS = $(patsubst $(SRC_DIR)/%.asm, $(BUILD_DIR)/%.o, $(ASM_SOURCES))
+OBJECTS     = $(patsubst $(BUILD_DIR)/%.s, $(BUILD_DIR)/%.o, $(C_OBJECTS)) $(ASM_OBJECTS)
+
 .SECONDARY: $(C_OBJECTS)
 
-# デフォルトターゲット
+# デフォルト
 all: $(BUILD_DIR)/$(PROJECT).nes
 
-# NES ファイルの生成
+# NES生成
 $(BUILD_DIR)/$(PROJECT).nes: $(OBJECTS)
-	$(LD) $(LDFLAGS) -m $(BUILD_DIR)/$(PROJECT).map -o $@ $(OBJECTS) nes.lib
+	$(LD) $(LDFLAGS) -m $(BUILD_DIR)/$(PROJECT).map -o $@ $(OBJECTS)
 
-# C ファイルのコンパイル
-$(BUILD_DIR)/%.s: $(SRC_DIR)/%.c
+# C → .s
+$(BUILD_DIR)/%.s: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $< -o $@
 
-# アセンブリファイルのアセンブル
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm
+# ASM → .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
 	$(CA) $< -o $@
 
-# C ファイルのアセンブル
+# .s → .o
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s
 	$(CA) $< -o $@
 
-# ビルドディレクトリの作成
+# build ディレクトリ
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# クリーンアップ
+# クリーン
 clean:
-	for /f "delims=" %%f in ('dir /b /a-d $(BUILD_DIR)\*') do del /q /f "$(BUILD_DIR)\%%f"
+	rm -rf $(BUILD_DIR)
 
 .PHONY: all clean
