@@ -72,5 +72,5 @@
 ; ここにBGやスプライトのタイルデータを読み込む
 ; ------------------------------------------------------------
 .segment "CHARS"
-    .incbin "bg.chr"      ; 背景用CHRデータ
-    .incbin	"sprite.chr"  ; スプライト用CHRデータ
+    .incbin "chr.chr"      ; 背景用CHRデータ
+    ;.incbin "sprite.chr"  ; スプライト用CHRデータ
