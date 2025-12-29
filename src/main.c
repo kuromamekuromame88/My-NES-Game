@@ -1,3 +1,3 @@
 void main(){
-  while(true){} //何もしない
+  while(1){} //何もしない
 }
