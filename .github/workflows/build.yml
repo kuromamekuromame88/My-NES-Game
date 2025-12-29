@@ -23,10 +23,7 @@ jobs:
 
       - name: Build NES ROM
         run: |
-          mkdir -p build
-          cl65 -t nes -C config.cfg \
-            -o build/game.nes \
-            src/startup.asm src/main.c
+          make
 
       # （任意）artifact としても残したい場合
       - name: Upload artifact
